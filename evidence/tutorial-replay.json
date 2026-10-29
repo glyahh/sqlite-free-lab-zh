@@ -1,0 +1,127 @@
+{
+  "status": "PASS",
+  "platform": "Linux",
+  "python": "3.12.14",
+  "sqlite": "3.53.1",
+  "step_count": 11,
+  "original_after_restore": "3 completed; unchanged by restore",
+  "restored": "1 completed",
+  "steps": [
+    {
+      "args": [
+        "make_sample.py"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "已创建 practice.db；3 条虚构任务，完成 1 条。已有文件不会覆盖。",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "check_sample.py",
+        "practice.db"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "业务验收通过：3 条任务，完成 1 条；中文内容一致。",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "-c",
+        "import sqlite3; c=sqlite3.connect(\"file:swapped.db?mode=rw\", uri=True); c.execute(\"UPDATE tasks SET done=CASE id WHEN 2 THEN 1 ELSE 0 END\"); c.commit(); c.close()"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "check_sample.py",
+        "swapped.db"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "rescue.py",
+        "backup",
+        "practice.db",
+        "checkpoint"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "{\"ok\": true, \"format\": 1, \"sha256\": \"aa7cd7c4830c870554dba3709a9a9495f2e6442e6477e604eb3fc68a027dbeec\", \"bytes\": 8192, \"sqlite_version\": \"3.53.1\", \"created_utc\": \"2026-10-29T14:44:20Z\"}",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "rescue.py",
+        "verify",
+        "checkpoint"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "{\"ok\": true, \"format\": 1, \"sha256\": \"aa7cd7c4830c870554dba3709a9a9495f2e6442e6477e604eb3fc68a027dbeec\", \"bytes\": 8192, \"sqlite_version\": \"3.53.1\", \"created_utc\": \"2026-10-29T14:44:20Z\"}",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "-c",
+        "import sqlite3; c=sqlite3.connect(\"file:practice.db?mode=rw\", uri=True); c.execute(\"UPDATE tasks SET done=1\"); c.commit(); c.close()"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "check_sample.py",
+        "practice.db"
+      ],
+      "expected_exit": 1,
+      "actual_exit": 1,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "rescue.py",
+        "restore",
+        "checkpoint",
+        "recovered.db"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "{\"ok\": true, \"format\": 1, \"sha256\": \"aa7cd7c4830c870554dba3709a9a9495f2e6442e6477e604eb3fc68a027dbeec\", \"bytes\": 8192, \"sqlite_version\": \"3.53.1\", \"created_utc\": \"2026-10-29T14:44:20Z\"}",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "check_sample.py",
+        "recovered.db"
+      ],
+      "expected_exit": 0,
+      "actual_exit": 0,
+      "stdout": "业务验收通过：3 条任务，完成 1 条；中文内容一致。",
+      "stderr": ""
+    },
+    {
+      "args": [
+        "rescue.py",
+        "restore",
+        "checkpoint",
+        "recovered.db"
+      ],
+      "expected_exit": 2,
+      "actual_exit": 2,
+      "stdout": "{\"ok\": false, \"error\": \"恢复目标已存在；禁止覆盖\"}",
+      "stderr": ""
+    }
+  ]
+}
